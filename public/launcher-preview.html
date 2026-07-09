@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FufuLauncher UI</title>
+    <style>
+        :root {
+            --font-family-base: "Segoe UI Variable", "Segoe UI", -apple-system, BlinkMacSystemFont, "Microsoft YaHei", sans-serif;
+            --font-family-icon: "Segoe Fluent Icons", "Segoe MDL2 Assets", "Segoe UI Symbol";
+            
+            --text-primary: #FFFFFF;
+            --text-secondary: rgba(255, 255, 255, 0.7);
+            
+            --acrylic-bg: rgba(30, 30, 30, 0.45);
+            --acrylic-blur: blur(10px);
+            --card-border: rgba(255, 255, 255, 0.08);
+
+            --btn-bg: rgba(255, 255, 255, 0.06);
+            --btn-hover: rgba(255, 255, 255, 0.12);
+            --btn-pressed: rgba(255, 255, 255, 0.04);
+            
+            --launch-btn-bg: rgba(69, 115, 145, 0.9);
+            
+            --window-width: 1360px;
+            --window-height: 768px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+            -webkit-user-drag: none;
+        }
+
+        body {
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            font-family: var(--font-family-base);
+            color: var(--text-primary);
+            background-color: #111;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .app-window {
+            width: var(--window-width);
+            height: var(--window-height);
+            position: relative;
+            overflow: hidden;
+            background-color: #1a1515;
+            background-image: linear-gradient(to bottom, rgba(0,0,0,0.1), rgba(0,0,0,0.5)), url('https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=1400&q=80');
+            background-size: cover;
+            background-position: center;
+            border: none;
+            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1), 0 16px 48px rgba(0, 0, 0, 0.6);
+            border-radius: 8px;
+        }
+
+        .acrylic-panel {
+            background: var(--acrylic-bg);
+            backdrop-filter: var(--acrylic-blur);
+            -webkit-backdrop-filter: var(--acrylic-blur);
+            border: 1px solid var(--card-border);
+            border-radius: 8px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+        }
+
+        .win-icon {
+            font-family: var(--font-family-icon);
+            font-weight: normal;
+            display: inline-block;
+            line-height: 1;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .title-bar {
+            position: absolute;
+            top: 0;
+            left: 80px;
+            right: 140px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            z-index: 1000;
+        }
+        
+        .title-content {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 4px 12px 4px 8px;
+            background: rgba(30, 30, 30, 0.4);
+            border: 1px solid var(--card-border);
+            border-radius: 8px;
+            backdrop-filter: blur(20px);
+        }
+
+        .title-text {
+            font-size: 12px;
+            font-weight: 600;
+            opacity: 0.9;
+        }
+
+        .sidebar {
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 60px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 16px 0 16px 0;
+            z-index: 900;
+            background: var(--acrylic-bg);
+            backdrop-filter: var(--acrylic-blur);
+            -webkit-backdrop-filter: var(--acrylic-blur);
+            border-right: 1px solid var(--card-border);
+        }
+
+        .nav-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+        }
+
+        .nav-item {
+            width: 44px;
+            height: 48px;
+            margin: 1px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+            cursor: pointer;
+            position: relative;
+            color: var(--text-primary);
+            transition: all 0.25s ease;
+        }
+        .nav-item:hover { background: var(--btn-hover); }
+        .nav-item:active { transform: scale(0.92); }
+        .nav-item .win-icon { font-size: 18px; }
+
+        .left-panel {
+            position: absolute;
+            left: 84px;
+            bottom: 18px;
+            width: 360px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            z-index: 100;
+        }
+
+        .info-card {
+            height: 285px;
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            padding: 2px;
+        }
+
+        .banner-area {
+            height: 155px;
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+            background-color: rgba(0,0,0,0.5);
+            flex-shrink: 0;
+        }
+
+        .banner-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .pivot-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 0 2px 2px 2px;
+        }
+
+        .pivot-header {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            padding: 0 12px;
+            min-height: 32px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .pivot-item {
+            color: var(--text-secondary);
+            cursor: pointer;
+            position: relative;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            transition: color 0.25s ease;
+        }
+        .pivot-item.active { color: var(--text-primary); }
+        .pivot-item::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 3px;
+            background-color: #60CDFF;
+            border-radius: 2px;
+            transition: all 0.25s ease;
+            opacity: 0;
+        }
+        .pivot-item.active::after {
+            width: 16px;
+            opacity: 1;
+        }
+
+        .list-view {
+            padding: 4px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .news-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px;
+            margin: 1px 0;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.25s ease;
+        }
+        .news-item:hover { background: var(--btn-hover); }
+        .news-item:active { background: var(--btn-pressed); }
+        .news-title { font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 250px; }
+        .news-date { font-size: 12px; opacity: 0.5; }
+
+        .status-row {
+            display: flex;
+            gap: 12px;
+            align-items: stretch;
+        }
+
+        .checkin-card {
+            flex: 1;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .note-card {
+            flex: 0 0 140px;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        .card-title { font-size: 14px; font-weight: 600; opacity: 0.9; }
+        .icon-btns { display: flex; gap: 6px; }
+        
+        .btn-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 4px;
+            background: var(--btn-bg);
+            border: none;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 11px;
+            transition: all 0.25s ease;
+        }
+        .btn-icon:hover { background: var(--btn-hover); }
+        .btn-icon:active { background: var(--btn-pressed); transform: scale(0.92); }
+
+        .checkin-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .checkin-text { display: flex; flex-direction: column; gap: 2px; }
+        .checkin-main { font-size: 12px; }
+        .checkin-sub { font-size: 11px; opacity: 0.6; }
+
+        .btn-calendar {
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            background: var(--btn-bg);
+            border: none;
+            color: var(--text-primary);
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.25s ease;
+        }
+        .btn-calendar:hover { background: var(--btn-hover); }
+        .btn-calendar:active { background: var(--btn-pressed); transform: scale(0.92); }
+
+        .btn-primary {
+            width: 100%;
+            padding: 6px 8px;
+            border-radius: 4px;
+            background: var(--btn-bg);
+            border: none;
+            color: var(--text-primary);
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.25s ease;
+        }
+        .btn-primary:hover { background: var(--btn-hover); }
+        .btn-primary:active { background: var(--btn-pressed); transform: scale(0.98); }
+
+        .note-list { display: flex; flex-direction: column; gap: 8px; }
+        .note-item { display: flex; align-items: center; gap: 8px; }
+        .note-item img { width: 24px; height: 24px; object-fit: contain; }
+        .note-text { display: flex; flex-direction: column; }
+        .note-label { font-size: 11px; opacity: 0.7; }
+        .note-value { font-size: 13px; font-weight: 600; }
+
+        .top-tools {
+            position: absolute;
+            top: 32px;
+            right: 32px;
+            width: 48px;
+            border-radius: 24px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 4px 0;
+            z-index: 100;
+        }
+
+        .tool-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 22px;
+            background: transparent;
+            border: none;
+            color: var(--text-primary);
+            font-size: 18px;
+            cursor: pointer;
+            transition: all 0.25s ease;
+        }
+        .tool-btn:hover { background: var(--btn-hover); }
+        .tool-btn:active { background: var(--btn-pressed); transform: scale(0.92); }
+
+        .right-bottom {
+            position: absolute;
+            right: 32px;
+            bottom: 105px;
+            width: 240px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            z-index: 100;
+        }
+
+        .widget-card { padding: 12px; }
+        
+        .widget-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 42px);
+            grid-auto-rows: 42px;
+            margin-top: 8px;
+            margin-left: -3px;
+        }
+        
+        .widget-cell {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .widget-item {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            background: var(--btn-bg);
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: all 0.25s ease;
+        }
+        .widget-item:hover { background: var(--btn-hover); }
+        .widget-item:active { background: var(--btn-pressed); transform: scale(0.92); }
+        .widget-item img { width: 24px; height: 24px; object-fit: contain; }
+        .widget-item .win-icon { font-size: 14px; }
+
+        .preset-card { padding: 12px; }
+        .preset-header { display: flex; justify-content: space-between; align-items: center; }
+        .preset-empty { text-align: center; font-size: 12px; opacity: 0.6; margin: 16px 0 8px 0; }
+
+        .launch-btn-container {
+            position: absolute;
+            right: 32px;
+            bottom: 32px;
+            z-index: 100;
+        }
+
+        .launch-btn {
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 24px;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            color: var(--text-primary);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
+        }
+        .launch-btn:active {
+            transform: scale(0.97);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+        }
+
+        .launch-btn-bg {
+            position: absolute;
+            inset: 0;
+            background: var(--launch-btn-bg);
+            z-index: 1;
+            transition: filter 0.3s ease;
+        }
+
+        .launch-content {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 18px 36px;
+        }
+
+        .launch-content .win-icon { font-size: 20px; }
+        .launch-content span:last-child { font-size: 16px; font-weight: 600; }
+        .launch-btn:hover .launch-btn-bg { filter: brightness(1.15); }
+
+        .copyright {
+            position: absolute;
+            right: 32px;
+            bottom: 10px;
+            font-size: 10px;
+            color: var(--text-primary);
+            opacity: 0.05;
+            z-index: 100;
+        }
+    </style>
+</head>
+<body>
+
+<div class="app-window">
+
+    <div class="title-bar">
+        <div class="title-content">
+            <span class="title-text">芙芙启动器 [管理员]</span>
+        </div>
+    </div>
+
+    <div class="sidebar">
+        <div class="nav-group">
+            <div class="nav-item"><span class="win-icon">&#xE80F;</span></div>
+            <div class="nav-item"><span class="win-icon">&#xEA86;</span></div>
+            <div class="nav-item"><span class="win-icon">&#xE80A;</span></div>
+            <div class="nav-item"><span class="win-icon">&#xE7FC;</span></div>
+            <div class="nav-item"><span class="win-icon">&#xE77B;</span></div>
+            <div class="nav-item"><span class="win-icon">&#xE71D;</span></div>
+            <div class="nav-item"><span class="win-icon">&#xE7B5;</span></div>
+            <div class="nav-item"><span class="win-icon">&#xE9D9;</span></div>
+            <div class="nav-item"><span class="win-icon">&#xE82D;</span></div>
+            <div class="nav-item"><span class="win-icon">&#xE716;</span></div>
+            <div class="nav-item"><span class="win-icon">&#xE1D0;</span></div>
+        </div>
+        <div class="nav-group">
+            <div class="nav-item"><span class="win-icon">&#xE713;</span></div>
+        </div>
+    </div>
+
+    <div class="left-panel">
+        
+        <div class="info-card acrylic-panel">
+            <div class="banner-area">
+                <img src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=600&q=80" alt="banner" class="banner-img" />
+            </div>
+            <div class="pivot-area">
+                <div class="pivot-header">
+                    <span class="pivot-item active">活动</span>
+                    <span class="pivot-item">公告</span>
+                    <span class="pivot-item">资讯</span>
+                </div>
+                <div class="list-view">
+                    <div class="news-item">
+                        <span class="news-title">【有奖活动】「恣锐锋镝」洛恩绘画征...</span>
+                        <span class="news-date">06/01</span>
+                    </div>
+                    <div class="news-item">
+                        <span class="news-title">【有奖活动】6月生日会话题活动开启！</span>
+                        <span class="news-date">06/01</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="status-row">
+            
+            <div class="checkin-card acrylic-panel">
+                <div class="card-header">
+                    <span class="card-title">原神签到</span>
+                    <div class="icon-btns">
+                        <button class="btn-icon win-icon">&#xE72C;</button>
+                        <button class="btn-icon win-icon">&#xE713;</button>
+                        <button class="btn-icon win-icon">&#xE8CB;</button>
+                    </div>
+                </div>
+                <div class="checkin-content">
+                    <div class="checkin-text">
+                        <span class="checkin-main">今日未签到</span>
+                        <span class="checkin-sub">账号: User (可签到)</span>
+                    </div>
+                    <button class="btn-calendar win-icon">&#xE787;</button>
+                </div>
+                <button class="btn-primary">立即签到</button>
+            </div>
+
+            <div class="note-card acrylic-panel">
+                <div class="card-header">
+                    <span class="card-title">原神便签</span>
+                    <div class="icon-btns">
+                        <button class="btn-icon win-icon">&#xE72C;</button>
+                    </div>
+                </div>
+                <div class="note-list">
+                    <div class="note-item">
+                        <img src="https://webstatic.mihoyo.com/app/community-game-records/images/logo-1.cd77560a.png" alt="树脂">
+                        <div class="note-text">
+                            <span class="note-label">树脂</span>
+                            <span class="note-value">200 / 200</span>
+                        </div>
+                    </div>
+                    <div class="note-item">
+                        <img src="https://webstatic.mihoyo.com/app/community-game-records/images/logo-3.786c15d1.png" alt="每日委托">
+                        <div class="note-text">
+                            <span class="note-label">每日委托</span>
+                            <span class="note-value">0 / 4</span>
+                        </div>
+                    </div>
+                    <div class="note-item">
+                        <img src="https://webstatic.mihoyo.com/app/community-game-records/images/logo-4.835b640a.png" alt="探索派遣">
+                        <div class="note-text">
+                            <span class="note-label">探索派遣</span>
+                            <span class="note-value">0 / 5</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="top-tools acrylic-panel">
+        <button class="tool-btn win-icon">&#xEA8F;</button>
+        <button class="tool-btn win-icon">&#xE8B9;</button>
+        <button class="tool-btn win-icon">&#xE8B7;</button>
+    </div>
+
+    <div class="right-bottom">
+        
+        <div class="widget-card acrylic-panel">
+            <span class="card-title">小工具</span>
+            <div class="widget-grid">
+                <div class="widget-cell"><button class="widget-item"><img src="https://act-upload.mihoyo.com/ys-obc/2025/01/21/73740358/4e65638b8b81ca7556f0fd42612d0be2_6482084243159257686.png"></button></div>
+                <div class="widget-cell"><button class="widget-item"><img src="https://act-upload.mihoyo.com/ys-obc/2025/01/21/73740358/b097c597c8e957e5c29ebba956be7b77_3600296528699504897.png"></button></div>
+                <div class="widget-cell"><button class="widget-item"><img src="https://act-upload.mihoyo.com/ys-obc/2025/01/21/73740358/746e735b9968d0a7496393809653bf9b_3827123919585554136.png"></button></div>
+                <div class="widget-cell"><button class="widget-item"><img src="https://act-upload.mihoyo.com/ys-obc/2025/01/21/73740358/816696c690ea7d95d8c13e67f794c807_6317738625095616930.png"></button></div>
+                <div class="widget-cell"><button class="widget-item"><img src="https://act-upload.mihoyo.com/ys-obc/2025/01/21/73740358/35990ccaac57819dbaf39a47db133a59_6427418972247587857.png"></button></div>
+                <div class="widget-cell"><button class="widget-item"><img src="https://act-upload.mihoyo.com/ys-obc/2025/01/21/73740358/6ba109a0c67067ce3f16c18147c91f03_2613518829063232490.png"></button></div>
+                <div class="widget-cell"><button class="widget-item"><img src="https://act-upload.mihoyo.com/ys-obc/2025/01/21/73740358/aae53df95bd8d8f437729545e3a287ab_8614980669390833989.png"></button></div>
+                <div class="widget-cell"><button class="widget-item"><span class="win-icon">&#xE710;</span></button></div>
+                <div class="widget-cell"><button class="widget-item"><span class="win-icon">&#xE738;</span></button></div>
+                <div class="widget-cell"><button class="widget-item"><span class="win-icon">&#xE890;</span></button></div>
+            </div>
+        </div>
+
+        <div class="preset-card acrylic-panel">
+            <div class="preset-header">
+                <span class="card-title">快速预设</span>
+                <button class="btn-icon win-icon">&#xE713;</button>
+            </div>
+            <div class="preset-empty">未固定任何预设</div>
+        </div>
+
+    </div>
+
+    <div class="launch-btn-container">
+        <button class="launch-btn acrylic-panel">
+            <div class="launch-btn-bg"></div>
+            <div class="launch-content">
+                <span class="win-icon">&#xE768;</span>
+                <span>点击启动游戏</span>
+            </div>
+        </button>
+    </div>
+    
+    <div class="copyright">© 2026 FufuLauncher Development Team.All Rights Reserved.</div>
+
+</div>
+
+</body>
+</html>
